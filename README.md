@@ -7,7 +7,7 @@ Self-hosted AI stack with local LLMs, chat UI, workflows, vector search, metasea
 | Service    | Image                              | Access                         | Role                 |
 |------------|------------------------------------|--------------------------------|----------------------|
 | Caddy      | `caddy:2.10-alpine`                | `:80` / `:443`                 | Reverse proxy / TLS  |
-| Open WebUI | `open-webui:v0.6.31`               | `:3000` or `DOMAIN_WEBUI`      | Chat UI              |
+| Open WebUI | `open-webui/open-webui:v0.6.31`    | `:3000` or `DOMAIN_WEBUI`      | Chat UI              |
 | Ollama     | `ollama/ollama:0.11.6`             | `:11434`                       | Local LLM runtime    |
 | n8n        | `n8nio/n8n:1.112.3`                | `:5678` or `DOMAIN_N8N`        | Workflow automation  |
 | SearXNG    | `searxng/searxng`                  | `DOMAIN_SEARXNG`               | Private metasearch   |

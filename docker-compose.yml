@@ -104,7 +104,7 @@ services:
       - ai
 
   open-webui:
-    image: ghcr.io/open-webui/open-webui:v0.6.31
+    image: open-webui/open-webui:v0.6.31
     container_name: open-webui
     restart: unless-stopped
     depends_on:
