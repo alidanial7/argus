@@ -155,6 +155,7 @@ Runs a backup, pulls images, recreates containers, and prunes dangling images.
 
 - Open WebUI uses Ollama at `http://ollama:11434` and SearXNG at `http://searxng:8080`.
 - n8n waits for Postgres to be healthy before starting.
+- n8n runs as uid `1000`; `make up` runs `scripts/fix-permissions.sh` so `./data/n8n` is writable. If you see `EACCES` on `/home/node/.n8n`, run `make perms` and restart n8n.
 - Ollama `mem_limit` is 10g — adjust in `docker-compose.yml` for your host.
 - Runtime files under `data/` are gitignored; empty dirs are kept with `.gitkeep`.
 - Change default passwords and secret keys before exposing the stack to a network.

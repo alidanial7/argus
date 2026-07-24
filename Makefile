@@ -1,4 +1,4 @@
-.PHONY: help up down restart ps logs pull backup restore update model shell env certs
+.PHONY: help up down restart ps logs pull backup restore update model shell env certs perms
 .DEFAULT_GOAL := help
 
 COMPOSE ?= docker compose
@@ -11,7 +11,10 @@ env: ## Copy .env.example to .env if missing
 	@test -f .env || (cp .env.example .env && echo "Created .env — edit secrets before starting")
 	@test -f .env && echo ".env ready"
 
-up: env ## Start the stack
+perms: ## Fix ./data ownership for container users (n8n needs uid 1000)
+	@bash scripts/fix-permissions.sh
+
+up: env perms ## Start the stack
 	$(COMPOSE) up -d
 
 down: ## Stop the stack
