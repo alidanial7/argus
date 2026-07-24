@@ -146,7 +146,7 @@ services:
       - ai
 
   n8n:
-    image: docker.n8n.io/n8nio/n8n:1.112.3
+    image: n8nio/n8n:1.112.3
     container_name: n8n
     restart: unless-stopped
     depends_on:
