@@ -41,3 +41,6 @@ engines:
     disabled: false
   - name: github
     disabled: false
+  # Wikidata SPARQL often returns HTTP 403 from many networks; disable to avoid noisy INIT failures
+  - name: wikidata
+    disabled: true
