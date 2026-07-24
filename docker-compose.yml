@@ -197,8 +197,8 @@ services:
       SEARXNG_BASE_URL: ${SEARXNG_BASE_URL}
       TZ: ${TZ}
     volumes:
-      - ./searxng/settings.yml:/etc/searxng/settings.yml:ro
-      - ./searxng/limiter.toml:/etc/searxng/limiter.toml:ro
+      # Mount the whole config dir so settings.yml + limiter.toml are both visible
+      - ./searxng:/etc/searxng:ro
     logging: *logging
     mem_limit: 512m
     networks:

@@ -1,11 +1,13 @@
 # SearXNG settings — see https://docs.searxng.org/admin/settings/settings.html
-# `disabled: true` still loads/inits engines; use remove to skip them entirely.
+# Only load the engines we want (avoids Wikidata 403 / broken onion engines).
 use_default_settings:
   engines:
-    remove:
-      - wikidata   # SPARQL endpoint often returns HTTP 403
-      - ahmia      # optional/onion; fails to load in many images
-      - torch      # optional/onion; fails to load in many images
+    keep_only:
+      - duckduckgo
+      - google
+      - bing
+      - wikipedia
+      - github
 
 general:
   instance_name: "Argus Search"
@@ -13,7 +15,7 @@ general:
   enable_metrics: false
 
 server:
-  # Change this to a long random string (must match your deployment secrets)
+  # Change this to a long random string
   secret_key: "ultrasecretkey-change-me-in-production"
   limiter: false
   image_proxy: true
