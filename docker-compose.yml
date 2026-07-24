@@ -8,30 +8,35 @@ x-logging: &logging
 
 services:
 
-  caddy:
-    image: caddy:2.10-alpine
-    container_name: caddy
+  nginx:
+    image: nginx:1.29.8-alpine
+    container_name: nginx
     restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
-      - "443:443/udp"
     environment:
       DOMAIN_WEBUI: ${DOMAIN_WEBUI}
       DOMAIN_N8N: ${DOMAIN_N8N}
       DOMAIN_SEARXNG: ${DOMAIN_SEARXNG}
       DOMAIN_QDRANT: ${DOMAIN_QDRANT}
-      ACME_EMAIL: ${ACME_EMAIL}
       TZ: ${TZ}
     volumes:
-      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - ./data/caddy:/data
-      - ./data/caddy:/config
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/templates:/etc/nginx/templates:ro
+      - ./nginx/snippets:/etc/nginx/snippets:ro
+      - ./data/nginx/certs:/etc/nginx/certs:ro
+      - ./data/nginx/logs:/var/log/nginx
     depends_on:
       - open-webui
       - n8n
       - searxng
       - qdrant
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
     logging: *logging
     mem_limit: 256m
     networks:
@@ -179,7 +184,7 @@ services:
       - ai
 
   searxng:
-    image: searxng/searxng:latest
+    image: searxng/searxng:2026.7.22-ef8f6470e
     container_name: searxng
     restart: unless-stopped
     environment:

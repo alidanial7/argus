@@ -1,0 +1,16 @@
+# Default catch-all — health check + reject unknown hosts
+server {
+    listen 80 default_server;
+    listen [::]:80 default_server;
+    server_name _;
+
+    location /healthz {
+        access_log off;
+        add_header Content-Type text/plain;
+        return 200 'ok';
+    }
+
+    location / {
+        return 444;
+    }
+}

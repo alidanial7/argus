@@ -1,4 +1,4 @@
-.PHONY: help up down restart ps logs pull backup restore update model shell env
+.PHONY: help up down restart ps logs pull backup restore update model shell env certs
 .DEFAULT_GOAL := help
 
 COMPOSE ?= docker compose
@@ -38,6 +38,9 @@ restore: ## Restore from ARCHIVE=backups/ai-stack-....tar.gz
 
 update: ## Backup, pull images, recreate stack
 	@bash scripts/update.sh
+
+certs: ## Generate self-signed TLS certs into data/nginx/certs/
+	@bash scripts/generate-certs.sh
 
 model: ## Pull an Ollama model (MODEL=llama3.2)
 	docker exec -it ollama ollama pull $(MODEL)

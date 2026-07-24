@@ -37,7 +37,11 @@ if [[ -d "${TMP_DIR}/data" ]]; then
 fi
 
 [[ -f "${TMP_DIR}/searxng/settings.yml" ]] && cp "${TMP_DIR}/searxng/settings.yml" "${ROOT_DIR}/searxng/settings.yml"
-[[ -f "${TMP_DIR}/caddy/Caddyfile" ]] && cp "${TMP_DIR}/caddy/Caddyfile" "${ROOT_DIR}/caddy/Caddyfile"
+if [[ -d "${TMP_DIR}/nginx" ]]; then
+  rm -rf "${ROOT_DIR}/nginx"
+  mkdir -p "${ROOT_DIR}/nginx"
+  cp -a "${TMP_DIR}/nginx/." "${ROOT_DIR}/nginx/"
+fi
 
 echo "==> Starting stack"
 docker compose -f "${ROOT_DIR}/docker-compose.yml" up -d
