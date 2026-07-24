@@ -1,0 +1,197 @@
+name: ai-stack
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "5"
+
+services:
+
+  caddy:
+    image: caddy:2.10-alpine
+    container_name: caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMAIN_WEBUI: ${DOMAIN_WEBUI}
+      DOMAIN_N8N: ${DOMAIN_N8N}
+      DOMAIN_SEARXNG: ${DOMAIN_SEARXNG}
+      DOMAIN_QDRANT: ${DOMAIN_QDRANT}
+      ACME_EMAIL: ${ACME_EMAIL}
+      TZ: ${TZ}
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./data/caddy:/data
+      - ./data/caddy:/config
+    depends_on:
+      - open-webui
+      - n8n
+      - searxng
+      - qdrant
+    logging: *logging
+    mem_limit: 256m
+    networks:
+      - ai
+
+  postgres:
+    image: postgres:17.6-alpine
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      TZ: ${TZ}
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    logging: *logging
+    mem_limit: 2g
+    networks:
+      - ai
+
+  redis:
+    image: redis:8.2-alpine
+    container_name: redis
+    restart: unless-stopped
+    command: >
+      redis-server
+      --appendonly yes
+      --save 60 1000
+      --requirepass ${REDIS_PASSWORD}
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      TZ: ${TZ}
+    volumes:
+      - ./data/redis:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging: *logging
+    mem_limit: 512m
+    networks:
+      - ai
+
+  ollama:
+    image: ollama/ollama:0.11.6
+    container_name: ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ./data/ollama:/root/.ollama
+    environment:
+      OLLAMA_KEEP_ALIVE: ${OLLAMA_KEEP_ALIVE:-30m}
+      TZ: ${TZ}
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    logging: *logging
+    mem_limit: 10g
+    networks:
+      - ai
+
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:v0.6.31
+    container_name: open-webui
+    restart: unless-stopped
+    depends_on:
+      ollama:
+        condition: service_started
+      searxng:
+        condition: service_started
+    environment:
+      OLLAMA_BASE_URL: http://ollama:11434
+      WEBUI_SECRET_KEY: ${WEBUI_SECRET_KEY}
+      SEARXNG_QUERY_URL: http://searxng:8080/search?q=<query>
+      TZ: ${TZ}
+    volumes:
+      - ./data/open-webui:/app/backend/data
+    ports:
+      - "3000:8080"
+    logging: *logging
+    mem_limit: 1g
+    networks:
+      - ai
+
+  qdrant:
+    image: qdrant/qdrant:v1.15.4
+    container_name: qdrant
+    restart: unless-stopped
+    environment:
+      QDRANT__SERVICE__API_KEY: ${QDRANT__SERVICE__API_KEY}
+      TZ: ${TZ}
+    volumes:
+      - ./data/qdrant:/qdrant/storage
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:6333/healthz"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    logging: *logging
+    mem_limit: 1g
+    networks:
+      - ai
+
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:1.112.3
+    container_name: n8n
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "5678:5678"
+    environment:
+      DB_TYPE: postgresdb
+      DB_POSTGRESDB_HOST: postgres
+      DB_POSTGRESDB_PORT: 5432
+      DB_POSTGRESDB_DATABASE: ${POSTGRES_DB}
+      DB_POSTGRESDB_USER: ${POSTGRES_USER}
+      DB_POSTGRESDB_PASSWORD: ${POSTGRES_PASSWORD}
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY}
+      N8N_HOST: ${N8N_HOST}
+      N8N_PORT: ${N8N_PORT}
+      N8N_PROTOCOL: ${N8N_PROTOCOL}
+      WEBHOOK_URL: ${WEBHOOK_URL}
+      GENERIC_TIMEZONE: ${TZ}
+      TZ: ${TZ}
+      N8N_SECURE_COOKIE: "false"
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      N8N_PERSONALIZATION_ENABLED: "false"
+    volumes:
+      - ./data/n8n:/home/node/.n8n
+    logging: *logging
+    mem_limit: 2g
+    networks:
+      - ai
+
+  searxng:
+    image: searxng/searxng:latest
+    container_name: searxng
+    restart: unless-stopped
+    environment:
+      SEARXNG_BASE_URL: ${SEARXNG_BASE_URL}
+      TZ: ${TZ}
+    volumes:
+      - ./searxng/settings.yml:/etc/searxng/settings.yml:ro
+    logging: *logging
+    mem_limit: 512m
+    networks:
+      - ai
+
+networks:
+  ai:
+    driver: bridge

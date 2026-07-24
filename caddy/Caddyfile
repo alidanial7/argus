@@ -1,0 +1,23 @@
+{
+	email {$ACME_EMAIL}
+
+	{$DOMAIN_WEBUI} {
+		encode gzip zstd
+		reverse_proxy open-webui:8080
+	}
+
+	{$DOMAIN_N8N} {
+		encode gzip zstd
+		reverse_proxy n8n:5678
+	}
+
+	{$DOMAIN_SEARXNG} {
+		encode gzip zstd
+		reverse_proxy searxng:8080
+	}
+
+	{$DOMAIN_QDRANT} {
+		encode gzip zstd
+		reverse_proxy qdrant:6333
+	}
+}
