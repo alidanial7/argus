@@ -1,0 +1,7 @@
+# Minimal bot-detection config (server.limiter is false in settings.yml).
+# Silences: missing config file: /etc/searxng/limiter.toml
+[botdetection]
+# Keep defaults; file only needs to exist when the module loads.
+
+[botdetection.ip_limit]
+link_token = false

@@ -1,5 +1,11 @@
 # SearXNG settings — see https://docs.searxng.org/admin/settings/settings.html
-use_default_settings: true
+# `disabled: true` still loads/inits engines; use remove to skip them entirely.
+use_default_settings:
+  engines:
+    remove:
+      - wikidata   # SPARQL endpoint often returns HTTP 403
+      - ahmia      # optional/onion; fails to load in many images
+      - torch      # optional/onion; fails to load in many images
 
 general:
   instance_name: "Argus Search"
@@ -41,6 +47,3 @@ engines:
     disabled: false
   - name: github
     disabled: false
-  # Wikidata SPARQL often returns HTTP 403 from many networks; disable to avoid noisy INIT failures
-  - name: wikidata
-    disabled: true

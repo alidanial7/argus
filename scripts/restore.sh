@@ -36,7 +36,10 @@ if [[ -d "${TMP_DIR}/data" ]]; then
   cp -a "${TMP_DIR}/data/." "${ROOT_DIR}/data/"
 fi
 
-[[ -f "${TMP_DIR}/searxng/settings.yml" ]] && cp "${TMP_DIR}/searxng/settings.yml" "${ROOT_DIR}/searxng/settings.yml"
+if [[ -d "${TMP_DIR}/searxng" ]]; then
+  mkdir -p "${ROOT_DIR}/searxng"
+  cp -a "${TMP_DIR}/searxng/." "${ROOT_DIR}/searxng/"
+fi
 if [[ -d "${TMP_DIR}/nginx" ]]; then
   rm -rf "${ROOT_DIR}/nginx"
   mkdir -p "${ROOT_DIR}/nginx"

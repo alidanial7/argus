@@ -27,7 +27,7 @@ fi
 echo "==> Collecting files"
 cp -a "${ROOT_DIR}/data/." "${WORK_DIR}/data/"
 mkdir -p "${WORK_DIR}/searxng" "${WORK_DIR}/nginx"
-cp -a "${ROOT_DIR}/searxng/settings.yml" "${WORK_DIR}/searxng/"
+cp -a "${ROOT_DIR}/searxng/." "${WORK_DIR}/searxng/"
 cp -a "${ROOT_DIR}/nginx/." "${WORK_DIR}/nginx/"
 cp -a "${ROOT_DIR}/.env.example" "${WORK_DIR}/"
 cp -a "${ROOT_DIR}/docker-compose.yml" "${WORK_DIR}/"

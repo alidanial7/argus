@@ -70,7 +70,8 @@ ai-stack/
 │       ├── qdrant.conf.template
 │       └── webui-ssl.conf.template.example
 ├── searxng/
-│   └── settings.yml
+│   ├── settings.yml
+│   └── limiter.toml
 ├── data/
 │   ├── postgres/
 │   ├── redis/
