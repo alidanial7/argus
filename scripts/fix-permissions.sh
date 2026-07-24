@@ -12,7 +12,12 @@ mkdir -p \
   "${DATA}/nginx/certs"
 
 # n8n image runs as user `node` (uid/gid 1000)
+mkdir -p "${DATA}/n8n"
 chown -R 1000:1000 "${DATA}/n8n"
+chmod 700 "${DATA}/n8n"
+if [[ -f "${DATA}/n8n/config" ]]; then
+  chmod 600 "${DATA}/n8n/config"
+fi
 
 # Open WebUI typically runs as uid 1000
 chown -R 1000:1000 "${DATA}/open-webui"

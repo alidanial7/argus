@@ -155,7 +155,8 @@ Runs a backup, pulls images, recreates containers, and prunes dangling images.
 
 - Open WebUI uses Ollama at `http://ollama:11434` and SearXNG at `http://searxng:8080`.
 - n8n waits for Postgres to be healthy before starting.
-- n8n runs as uid `1000`; `make up` runs `scripts/fix-permissions.sh` so `./data/n8n` is writable. If you see `EACCES` on `/home/node/.n8n`, run `make perms` and restart n8n.
+- n8n starts as root briefly via `scripts/n8n-entrypoint.sh` to `chown` `./data/n8n`, then drops to user `node`. If you still see permission errors, run `make perms` and `docker compose up -d --force-recreate n8n`.
+- If n8n logs `Mismatching encryption keys`, either set `N8N_ENCRYPTION_KEY` to the key in `data/n8n/config`, or remove that file on a fresh install (destroys encrypted credentials).
 - Ollama `mem_limit` is 10g — adjust in `docker-compose.yml` for your host.
 - Runtime files under `data/` are gitignored; empty dirs are kept with `.gitkeep`.
 - Change default passwords and secret keys before exposing the stack to a network.
